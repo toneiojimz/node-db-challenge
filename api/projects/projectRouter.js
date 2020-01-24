@@ -1,8 +1,10 @@
 const express = require('express');
-const projects = require('./project-Model.js');
+const projects = require('./project-model.js');
 
 const router = express.Router();
 
+
+//GET all the projects
 router.get('/', (req, res) => {
     projects.getProjects()
     .then(response => {
@@ -14,6 +16,8 @@ router.get('/', (req, res) => {
     })
 })
 
+
+//POST a project to projects
 router.post('/', (req, res) => {
     if (req.body) {
         projects.addProject(req.body)
@@ -32,6 +36,8 @@ router.post('/', (req, res) => {
     }
 })
 
+
+//GET resources list
 router.get('/resources', (req, res) => {
     projects.getResources()
     .then(response => {
@@ -43,6 +49,8 @@ router.get('/resources', (req, res) => {
     })
 })
 
+
+//POST a resource to resources
 router.post('/resources', (req, res) => {
     if (req.body) {
         projects.addResource(req.body)
@@ -61,6 +69,8 @@ router.post('/resources', (req, res) => {
     }
 })
 
+
+//GET all tasks
 router.get('/tasks', (req, res) => {
     projects.getTasks()
     .then(response => {
@@ -72,6 +82,8 @@ router.get('/tasks', (req, res) => {
     })
 })
 
+
+//GET tasks by id
 router.post('/tasks/:id', (req, res) => {
     const { id } = req.params;
     if (!req.body.description) {
@@ -92,6 +104,23 @@ router.post('/tasks/:id', (req, res) => {
             console.log(err);
             return res.status(500).json({ error: "Something went wrong adding a task." })
         })
+    }
+})
+
+router.get('/:id', async (req, res) => {
+    const { id } = req.params;
+    const task = await projects.getTaskById(id);
+    const resource = await projects.getResourceById(id);
+    const project = await projects.getProjectById(id);
+
+    if (task, resource, project) {
+        return res.status(200).json({
+            ...project,
+            tasks: task,
+            resources: resource
+        })
+    } else {
+        return res.status(500).json({ error: "Something went wrong." })
     }
 })
 
